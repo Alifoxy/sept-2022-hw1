@@ -1,0 +1,44 @@
+[
+  {
+    "id":1,
+    "name":"Maksym",
+    "age":25,
+    "gender":"male"
+  },
+  {
+    "id":2,
+    "name":"Alina",
+    "age":25,
+    "gender":"female"
+  },
+  {
+    "id":3,
+    "name":"Anton",
+    "age":25,
+    "gender":"male"
+  },
+  {
+    "id":4,
+    "name":"Maria",
+    "age":20,
+    "gender":"female"
+  },
+  {
+    "id":7,
+    "name":"Oksana",
+    "age":20,"gender":"female"
+  },
+  {
+    "id":8,
+    "name":"Kokos",
+    "age":60,
+    "gender":"mixed"
+  },
+  {
+    "id":9,
+    "name":"Anna",
+    "age":20,
+    "gender":"female"
+  }
+]
+

@@ -1,61 +1,97 @@
-const fs = require('node:fs/promises');
-const path = require('node:path');
+const express = require('express');
+const fsService = require('./fs.service');
 
-// const worker = async () => {
-//   try {
-//     const fileNames = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt'];
-//     const folderNames = ['folder1', 'folder2', 'folder3', 'folder4'];
-//
-//     const promises = folderNames.map(async (folderName, index) => {
-//       const folderPath = path.join(process.cwd(), folderName);
-//
-//       await fs.mkdir(folderPath, { recursive: true });
-//       await fs.writeFile(path.join(folderPath, fileNames[index]), 'Hello World');
-//     });
-//     console.log(promises)
-//     const a = await Promise.allSettled(promises);
-//     console.log(a)
-//
-//     const files = await fs.readdir(path.join(process.cwd()));
-//
-//     for (const file of files) {
-//       const stats = await fs.stat(path.join(process.cwd(), file));
-//       const isFile = stats.isFile();
-//
-//       if (isFile) {
-//         console.log('This is file : ', path.join(process.cwd(), file));
-//       } else {
-//         console.log('This is directory : ', path.join(process.cwd(), file));
-//       }
-//     }
-//
-//   } catch (e) {
-//     console.error(e.message);
-//   }
-// }
-//
-// worker().then();
+const app = express();
 
-const worker = async () => {
-  try {
-    const fileNames = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt'];
-    const folderNames = ['folder1', 'folder2', 'folder3', 'folder4'];
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
-    const filesPromises = fileNames.map(async (fileName) => {
-      await fs.writeFile(path.join(process.cwd(), fileName), 'Hello World');
-    });
+app.get('/users', async (req, res) => {
+  const users = await fsService.reader();
+  res.json(users);
+});
 
-    const foldersPromises = folderNames.map(async (folderName) => {
-      await fs.mkdir(path.join(process.cwd(), folderName), { recursive: true });
-    });
+app.post('/users', async (req, res) => {
+  const { name, age, gender } = req.body;
 
-    await Promise.all([...filesPromises, ...foldersPromises]);
-  } catch (e) {
-    console.error(e.message);
+  if (!name || name.length < 2) {
+    res.status(400).json('Wrong name');
   }
-}
+  if (!age || !Number.isInteger(age) || Number.isNaN(age)) {
+    res.status(400).json('Wrong age');
+  }
+  if (!gender || (gender !== 'male' && gender !== 'female')) {
+    res.status(400).json('Wrong gender');
+  }
 
-(async () => {
-  await worker();
-  console.log(await fs.readdir(path.join(process.cwd())));
-})();
+  const users = await fsService.reader();
+  const newUser = { id: users[users.length - 1]?.id + 1 || 1, name, age, gender };
+
+  users.push(newUser);
+  await fsService.writer(users);
+  res.status(201).json(newUser);
+});
+
+app.get('/users/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const users = await fsService.reader();
+  const user = users.find((user) => user.id === +userId);
+
+  if (!user) {
+    res.status(422).json(`User with id: ${userId} not found`);
+  }
+
+  res.json(user);
+});
+
+app.patch('/users/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { name, age, gender } = req.body;
+
+  if (name && name.length < 2) {
+    res.status(400).json('Wrong name');
+  }
+  if (age && !Number.isInteger(age) || Number.isNaN(age)) {
+    res.status(400).json('Wrong age');
+  }
+  if (gender && (gender !== 'male' && gender !== 'female')) {
+    res.status(400).json('Wrong gender');
+  }
+
+  const users = await fsService.reader();
+  const index = users.findIndex((user) => user.id === +userId);
+
+  if (index === -1) {
+    res.status(422).json(`User with id: ${userId} not found`);
+  }
+  users[index] = { ...users[index], ...req.body };
+
+  await fsService.writer(users);
+  res.status(201).json(users[index]);
+});
+
+app.delete('/users/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  const users = await fsService.reader();
+  const index = users.findIndex((user) => user.id === +userId);
+  if (index === -1) {
+    res.status(422).json(`User with id: ${userId} not found`);
+  }
+
+  users.splice(index, 1);
+  await fsService.writer(users);
+
+  res.sendStatus(204);
+});
+
+app.get('/welcome', (req, res) => {
+  res.send('WELCOME');
+});
+
+const PORT = 5100;
+
+app.listen(PORT, () => {
+  console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
+});
