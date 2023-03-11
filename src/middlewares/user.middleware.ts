@@ -129,6 +129,7 @@ class UserMiddleware {
       next(e);
     }
   }
+
   public async isUserValidLogin(
       req: Request,
       res: Response,

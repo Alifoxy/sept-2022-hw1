@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken";
 
 import { tokenConstants } from "../validators/constants/token.constants";
 import { ITokenPair, ITokenPayload } from "../types/token.types";
+import {ApiError} from "../errors/api.error";
 
 class TokenService {
     public generateTokenPair(payload: ITokenPayload): ITokenPair {
@@ -16,6 +17,15 @@ class TokenService {
             accessToken,
             refreshToken,
         };
+    }
+    public checkToken(token: string, tokenType=""){
+        try{
+            switch(tokenType){
+
+            }
+        }catch (e) {
+            throw new ApiError("Token not valid",401);
+        }
     }
 }
 
