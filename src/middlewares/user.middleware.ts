@@ -129,6 +129,23 @@ class UserMiddleware {
       next(e);
     }
   }
+  public async isUserValidLogin(
+      req: Request,
+      res: Response,
+      next: NextFunction
+  ): Promise<void> {
+    try {
+      const { error } = UserValidator.loginUser.validate(req.body);
+
+      if (error) {
+        throw new ApiError(error.message, 400);
+      }
+
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export const userMiddleware = new UserMiddleware();
