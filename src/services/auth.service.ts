@@ -1,7 +1,8 @@
 import { ApiError } from "../errors/api.error";
-import { Token } from "../models/Token.model";
 
+import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
+
 import { ITokenPair } from "../types/token.types";
 import { IUser } from "../types/user.types";
 import { ICredentials } from "../types/auth.types";

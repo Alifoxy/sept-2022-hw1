@@ -1,7 +1,9 @@
 import * as jwt from "jsonwebtoken";
 
 import { tokenConstants } from "../validators/constants/token.constants";
+import { configs } from "../configs/config";
 import { ITokenPair, ITokenPayload } from "../types/token.types";
+import { ETokenType } from "../enums/token-type.enum";
 import {ApiError} from "../errors/api.error";
 
 class TokenService {
@@ -18,11 +20,21 @@ class TokenService {
             refreshToken,
         };
     }
-    public checkToken(token: string, tokenType=""){
-        try{
-            switch(tokenType){
 
+    public checkToken(token: string, tokenType = ETokenType.access):ITokenPayload{
+        try{
+            let secret = "";
+
+            switch (tokenType) {
+                case ETokenType.access:
+                    secret = configs.ACCESS_SECRET;
+                    break;
+                case ETokenType.refresh:
+                    secret = configs.REFRESH_SECRET;
+                    break;
             }
+
+            return jwt.verify(token, secret) as ITokenPayload;
         }catch (e) {
             throw new ApiError("Token not valid",401);
         }
