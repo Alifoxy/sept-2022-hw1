@@ -4,12 +4,14 @@ import mongoose from "mongoose";
 import { configs } from "./configs/config";
 import { userRouter } from "./routers/user.router";
 import { IError } from "./types/common.types";
+import {authRouter} from "./routers/auth.router";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/auth", authRouter);
 app.use("/users", userRouter);
 
 // --- ERROR HANDLER ---
