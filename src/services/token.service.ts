@@ -4,13 +4,14 @@ import { tokenConstants } from "../validators/constants/token.constants";
 import { configs } from "../configs/config";
 import { ITokenPair, ITokenPayload } from "../types/token.types";
 import { ETokenType } from "../enums/token-type.enum";
-import {ApiError} from "../errors/api.error";
+import { ApiError } from "../errors/api.error";
 
 class TokenService {
-    public generateTokenPair(payload: ITokenPayload): ITokenPair {
-        const accessToken = jwt.sign(payload, tokenConstants.ACCESS_SECRET, {
-            expiresIn: "15m",
-        });
+    public generateTokenPair(payload: { name: string; _id: string | undefined }): ITokenPair {
+        const accessToken = jwt.sign(payload, tokenConstants.ACCESS_SECRET,
+            {
+                expiresIn: "15m",
+            });
         const refreshToken = jwt.sign(payload, tokenConstants.REFRESH_SECRET, {
             expiresIn: "30d",
         });
