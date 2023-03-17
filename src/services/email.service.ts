@@ -42,6 +42,7 @@ class EmailService {
         locals: Record<string, string> = {}
     ) {
         const templateInfo = allTemplates[emailAction];
+        // @ts-ignore
         locals.frontUrl = configs.FRONT_URL;
 
         const html = await this.templateParser.render(

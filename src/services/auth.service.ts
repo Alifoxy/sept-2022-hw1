@@ -2,11 +2,17 @@ import { ApiError } from "../errors/api.error";
 
 import { Token } from "../models/Token.model";
 import { User } from "../models/User.model";
+import { Action } from "../models/Action.model";
 
+import { EActionTokenType } from "../enums/action-token-type.enum";
+import { EEmailActions } from "../enums/email.enum";
+import { EUserStatus } from "../enums/user-status.enum";
 import { ITokenPair } from "../types/token.types";
+import { ITokenPayload} from "../types/token.types";
 import { IUser } from "../types/user.types";
 import { ICredentials } from "../types/auth.types";
 
+import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
 import { tokenService } from "./token.service";
 
@@ -53,6 +59,7 @@ class AuthService {
             throw new ApiError(e.message, e.status);
         }
     }
+
     public async refresh(
         tokenInfo: ITokenPair,
         jwtPayload: ITokenPayload
@@ -123,6 +130,43 @@ class AuthService {
             const hashedPassword = await passwordService.hash(password);
 
             await User.updateOne({ _id: id }, { password: hashedPassword });
+        } catch (e) {
+            throw new ApiError(e.message, e.status);
+        }
+    }
+
+    public async sendActivateToken(user: IUser): Promise<void> {
+        try {
+            const actionToken = tokenService.generateActionToken(
+                { _id: user._id },
+                EActionTokenType.activate
+            );
+            await Action.create({
+                actionToken,
+                tokenType: EActionTokenType.activate,
+                _user_id: user._id,
+            });
+
+            await emailService.sendMail(user.email, EEmailActions.ACTIVATE, {
+                token: actionToken,
+            });
+        } catch (e) {
+            throw new ApiError(e.message, e.status);
+        }
+    }
+
+    public async activate(userId: string): Promise<void> {
+        try {
+            await Promise.all([
+                User.updateOne(
+                    { _id: userId },
+                    { $set: { status: EUserStatus.active } }
+                ),
+                Token.deleteMany({
+                    _user_id: userId,
+                    tokenType: EActionTokenType.activate,
+                }),
+            ]);
         } catch (e) {
             throw new ApiError(e.message, e.status);
         }

@@ -1,4 +1,4 @@
-import { EEmailActions } from "../enums";
+import { EEmailActions } from "../../enums/email.enum";
 
 export const allTemplates: {
     [key: string]: { subject: string; templateName: string };

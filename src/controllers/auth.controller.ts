@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { authService } from "../services/auth.service";
 import { ITokenPair} from "../types/token.types";
+import { ITokenPayload} from "../types/token.types";
 import { IUser } from "../types/user.types";
 
 class AuthController {
@@ -99,6 +100,37 @@ class AuthController {
             next(e);
         }
     }
+
+    public async sendActivateToken(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        try {
+            const { user } = req.res.locals;
+            await authService.sendActivateToken(user);
+
+            res.sendStatus(204);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public async Activate(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> {
+        try {
+            const { _id } = req.res.locals.jwtPayload as ITokenPayload;
+            await authService.activate(_id);
+
+            res.sendStatus(204);
+        } catch (e) {
+            next(e);
+        }
+    }
+
 }
 
 export const authController = new AuthController();

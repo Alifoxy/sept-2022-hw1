@@ -10,7 +10,7 @@ import {UserValidator} from "../validators";
 const router = Router();
 
 router.post(
-    "/register",
+    "/create",
     commonMiddleware.isBodyValid(UserValidator.createUser),
     userMiddleware.getDynamicallyAndThrow("email"),
     authController.register
@@ -39,6 +39,19 @@ router.put(
     `/password/forgot/:token`,
     authMiddleware.checkActionForgotToken,
     authController.setForgotPassword
+);
+
+router.post(
+    "/activate",
+    commonMiddleware.isBodyValid(UserValidator.emailValidator),
+    userMiddleware.getDynamicallyOrThrow("email"),
+    authController.sendActivateToken
+);
+
+router.put(
+    `/activate/:token`,
+    authMiddleware.checkActionToken(EActionTokenType.activate),
+    authController.Activate
 );
 
 router.post(
