@@ -75,6 +75,7 @@ class AuthMiddleware {
                     throw new ApiError("No token", 401);
                 }
 
+
                 const jwtPayload = tokenService.checkActionToken(actionToken, type);
 
                 const tokenInfo = await Action.findOne({actionToken});

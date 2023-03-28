@@ -4,6 +4,7 @@ import { User } from "../models/User.model";
 import { userService } from "../services/user.service";
 import { ICommonResponse } from "../types/common.types";
 import { IUser } from "../types/user.types";
+import {UploadedFile} from "express-fileupload";
 
 class UserController {
   public async getAll(
@@ -80,6 +81,40 @@ class UserController {
       const { userId } = req.params;
 
       await User.deleteOne({ _id: userId });
+
+      return res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async uploadAvatar(
+      req: Request,
+      res: Response,
+      next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { userId } = req.params;
+      const avatar = req.files.avatar as UploadedFile;
+
+      const user = await userService.uploadAvatar(avatar, userId);
+
+      return res.status(201).json(user);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async deleteAvatar(
+      req: Request,
+      res: Response,
+      next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { userId } = req.params;
+      const avatar = req.files.avatar as UploadedFile;
+
+      await userService.deleteAvatar(avatar, userId);
 
       return res.sendStatus(204);
     } catch (e) {

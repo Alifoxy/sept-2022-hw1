@@ -116,7 +116,7 @@ class AuthController {
         }
     }
 
-    public async Activate(
+    public async activate(
         req: Request,
         res: Response,
         next: NextFunction

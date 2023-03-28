@@ -4,6 +4,7 @@ import { authController } from "../controllers/auth.controller";
 import { userMiddleware } from "../middlewares/user.middleware";
 import {commonMiddleware} from "../middlewares/common.middleware";
 import {authMiddleware} from "../middlewares/auth.middleware";
+import { EActionTokenType } from "../enums/action-token-type.enum";
 import {UserValidator} from "../validators";
 
 
@@ -48,11 +49,9 @@ router.post(
     authController.sendActivateToken
 );
 
-router.put(
-    `/activate/:token`,
+router.put(`/activate/:token`,
     authMiddleware.checkActionToken(EActionTokenType.activate),
-    authController.Activate
-);
+    authController.activate);
 
 router.post(
     "/refresh",
