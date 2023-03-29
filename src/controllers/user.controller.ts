@@ -99,7 +99,9 @@ class UserController {
 
       const user = await userService.uploadAvatar(avatar, userId);
 
-      return res.status(201).json(user);
+      const response = userMapper.toResponse(user);
+
+      return res.status(201).json(response);
     } catch (e) {
       next(e);
     }
@@ -111,12 +113,15 @@ class UserController {
       next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const { userId } = req.params;
-      const avatar = req.files.avatar as UploadedFile;
 
-      await userService.deleteAvatar(avatar, userId);
+      const userEntity = res.locals.user as IUser;
 
-      return res.sendStatus(204);
+      const user = await userService.deleteAvatar(userEntity);
+
+      const response = userMapper.toResponse(user);
+
+      return res.status(201).json(response);
+
     } catch (e) {
       next(e);
     }

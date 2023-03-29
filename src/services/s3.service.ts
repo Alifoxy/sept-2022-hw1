@@ -1,6 +1,6 @@
 import { extname } from "node:path";
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {DeleteObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import { UploadedFile } from "express-fileupload";
 import { v4 } from "uuid";
 
@@ -17,15 +17,13 @@ class S3Service {
         })
     ) {}
 
-    public async deletePhoto(
-        file: UploadedFile,
-        itemType: string,
-        itemId: string
-    ): Promise<string> {
-        const filePath = this.buildPath(file.name, itemType, itemId);
-
-        await this.client.destroy();
-        return `${configs.AWS_S3_URL}/${filePath}`;
+    public async deletePhoto(filePath: string): Promise<void> {
+        await this.client.send(
+            new DeleteObjectCommand({
+                Bucket: configs.AWS_S3_NAME,
+                Key: filePath,
+            })
+        );
     }
 
     public async uploadPhoto(
